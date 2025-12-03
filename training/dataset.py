@@ -25,3 +25,31 @@ def prepare_training_data(raw_data, prompt_template = TRANSLATION_PROMPT):
         training_data.append({"text": prompt})
 
     return training_data
+
+def tokenize_training_data(training_data, tokenizer):
+    tokenized_data = []
+
+    for item in training_data:
+        text = item["text"]
+        tokenized_item = tokenizer(
+            text,
+            truncation = True,
+            padding = False,
+            max_length = tokenizer.model_max_length,
+            return_tensors = None
+        )
+
+        tokenized_data.append(tokenized_item)
+
+    return tokenized_data
+
+def tokenize_sample(sample, tokenizer):
+    encoded = tokenizer(
+        sample["text"],
+        truncation = True,
+        padding = False,
+        max_length = tokenizer.model_max_length
+    )
+
+    encoded["labels"] = encoded["input_ids"].copy()
+    return encoded
