@@ -21,6 +21,8 @@ ALLOWED_MODELS = [
     "google/gemma-1.1-7b"
 ]
 
+## for llama and gemma models you may need hugging face access
+
 # Default model
 MODEL_NAME = "microsoft/Phi-3-mini-4k-instruct"
 
