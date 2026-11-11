@@ -48,9 +48,9 @@ PROMPT_TEMPLATE = (
 
 
 # -------------------------------------------------------
-# Training hyperparameters
+# Training hyperparameters (the values used for the runs in results/)
 # -------------------------------------------------------
-MAX_SAMPLES = 1000          # cap on training examples (None = use the full file)
+MAX_SAMPLES = 20000         # cap on training examples (0 on the CLI = use the full file)
 MAX_SEQ_LENGTH = 256        # tokens; translations in HinGE are well under this
 EVAL_SPLIT = 0.1            # fraction held out for validation loss
 SEED = 42
@@ -59,7 +59,7 @@ GRADIENT_ACC_STEPS = 8      # effective batch size = BATCH_SIZE * GRADIENT_ACC_S
 NUM_EPOCHS = 2
 LEARNING_RATE = 2e-4
 WARMUP_STEPS = 30
-EVAL_STEPS = 50             # evaluate / checkpoint every N optimizer steps
+EVAL_STEPS = 200            # evaluate / checkpoint every N optimizer steps
 
 
 # -------------------------------------------------------
@@ -67,8 +67,9 @@ EVAL_STEPS = 50             # evaluate / checkpoint every N optimizer steps
 # -------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
-DEFAULT_DATA_PATH = DATA_DIR / "hinge_train.json"
-OUTPUT_DIR = PROJECT_ROOT / "outputs"
+DEFAULT_DATA_PATH = DATA_DIR / "eng_hinglish_train.json"  # findnitai/english-to-hinglish
+OUTPUT_DIR = PROJECT_ROOT / "outputs"            # new training runs (git-ignored)
+RESULTS_DIR = PROJECT_ROOT / "results"          # reported runs: adapters, logs, sample outputs
 
 
 # -------------------------------------------------------
@@ -78,7 +79,7 @@ OUTPUT_DIR = PROJECT_ROOT / "outputs"
 # into a single `qkv_proj`, while LLaMA and Gemma keep them separate.
 LORA_TARGET_MODULES = {
     "phi": ["qkv_proj", "o_proj"],
-    "default": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "default": ["q_proj", "v_proj"],
 }
 
 

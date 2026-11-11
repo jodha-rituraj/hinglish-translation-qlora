@@ -1,0 +1,27 @@
+{
+  "name": "phi3-mini",
+  "base_model": "microsoft/Phi-3-mini-4k-instruct",
+  "lora_target_modules": [
+    "qkv_proj",
+    "o_proj"
+  ],
+  "trainable_params": 9437184,
+  "eval_loss_before": 3.281,
+  "eval_loss_after": 1.3176,
+  "best_step": 4400,
+  "dataset": "findnitai/english-to-hinglish (data/eng_hinglish_train.json), first 20,000 pairs",
+  "train_eval_split": "18,000 train / 2,000 validation (random 10% split)",
+  "quantization": "4-bit NF4, double quantization, fp16 compute",
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "learning_rate": 0.0002,
+  "lr_schedule": "linear, 30 warmup steps",
+  "effective_batch_size": 8,
+  "epochs": 2,
+  "optimizer_steps": 4500,
+  "hardware": "1x NVIDIA T4 (Google Colab)",
+  "date": "2025-12-07",
+  "objective_note": "Trained before the loss-masking/EOS fix: loss covers prompt + answer, no EOS appended.",
+  "sample_translations_note": "100 sentences drawn from the same 20k pool used for training (~90% seen in training). Generated with do_sample=True, temperature=0.1, max_new_tokens=50."
+}

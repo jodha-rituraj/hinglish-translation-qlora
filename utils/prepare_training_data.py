@@ -6,7 +6,7 @@ each reference becomes its own training pair.
 
 Usage:
     python utils/prepare_training_data.py                  # both datasets
-    python utils/prepare_training_data.py --dataset hinge  # only HinGE (used by default for training)
+    python utils/prepare_training_data.py --dataset findnitai  # only the default training set
 """
 
 import argparse

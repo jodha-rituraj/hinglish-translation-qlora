@@ -1,0 +1,32 @@
+{
+  "phi3-mini": {
+    "eval_loss_before": 3.281,
+    "eval_loss_after": 1.3176,
+    "n": 100,
+    "base": {
+      "chrf++": 2.6,
+      "bleu": 0.4,
+      "romanized_rate": 0.11
+    },
+    "fine_tuned": {
+      "chrf++": 52.1,
+      "bleu": 22.1,
+      "romanized_rate": 1.0
+    }
+  },
+  "llama-3.2-3b": {
+    "eval_loss_before": 3.3042,
+    "eval_loss_after": 1.2198,
+    "n": 100,
+    "base": {
+      "chrf++": 11.2,
+      "bleu": 5.1,
+      "romanized_rate": 0.33
+    },
+    "fine_tuned": {
+      "chrf++": 52.6,
+      "bleu": 23.5,
+      "romanized_rate": 1.0
+    }
+  }
+}

@@ -1,8 +1,10 @@
 """Translate English sentences into Hinglish with a fine-tuned LoRA adapter.
 
 Examples:
-    python infer.py --text "Where are you going tonight?"
+    python infer.py --text "Where are you going tonight?"            # shipped Phi-3 adapter
     python infer.py --compare --text "I will call you after the meeting."
+    python infer.py --adapter_path results/llama-3.2-3b/adapter --text "..."
+    python infer.py --adapter_path outputs/adapter --text "..."      # your own run
     echo "What's the name of the movie?" | python infer.py
 """
 
@@ -18,7 +20,7 @@ import config
 from training.dataset import build_prompt
 from training.model import QUANTIZATION_CHOICES, load_model
 
-DEFAULT_ADAPTER = config.OUTPUT_DIR / "adapter"
+DEFAULT_ADAPTER = config.RESULTS_DIR / "phi3-mini" / "adapter"  # trained adapter shipped with the repo
 
 
 def parse_args():
@@ -43,7 +45,7 @@ def resolve_base_model(adapter_path, base_model):
     if not adapter_config.exists():
         sys.exit(f"No adapter found at {adapter_path}. Train one with `python train.py` "
                  "or pass --adapter_path.")
-    return json.loads(adapter_config.read_text())["base_model_name_or_path"]
+    return json.loads(adapter_config.read_text()).get("base_model_name_or_path") or config.MODEL_NAME
 
 
 @torch.no_grad()

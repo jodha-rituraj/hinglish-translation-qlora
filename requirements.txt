@@ -8,6 +8,10 @@ peft>=0.13
 # 4-/8-bit quantization (CUDA only; skipped on macOS, where you train with --quantization none)
 bitsandbytes>=0.45; sys_platform != "darwin"
 
+# Results summary (utils/summarize_results.py)
+matplotlib
+sacrebleu
+
 # Tokenizer dependencies for LLaMA / Gemma / Phi models
 sentencepiece
 protobuf

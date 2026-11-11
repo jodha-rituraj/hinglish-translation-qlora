@@ -18,17 +18,17 @@ if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
 fi
 
 echo "==> [2/4] Preparing data"
-if [[ ! -f data/hinge_train.json ]]; then
-  "$PYTHON" utils/prepare_training_data.py --dataset hinge
+if [[ ! -f data/eng_hinglish_train.json ]]; then
+  "$PYTHON" utils/prepare_training_data.py --dataset findnitai
 else
-  echo "data/hinge_train.json already present, skipping download"
+  echo "data/eng_hinglish_train.json already present, skipping download"
 fi
 
 echo "==> [3/4] Fine-tuning"
 "$PYTHON" train.py "$@"
 
 echo "==> [4/4] Sample translations (base model vs fine-tuned)"
-"$PYTHON" infer.py --compare \
+"$PYTHON" infer.py --adapter_path outputs/adapter --compare \
   --text "Where are you going tonight?" \
   --text "I will call you after the meeting." \
   --text "This movie was much better than I expected."
