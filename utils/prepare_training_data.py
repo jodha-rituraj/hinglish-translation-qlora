@@ -1,80 +1,79 @@
-from datasets import load_dataset
+"""Download English -> Hinglish datasets from the Hugging Face Hub into data/*.json.
+
+Each output file is a JSON list of {"input": <english>, "output": <hinglish>}.
+When a dataset provides several Hinglish references for one English sentence,
+each reference becomes its own training pair.
+
+Usage:
+    python utils/prepare_training_data.py                  # both datasets
+    python utils/prepare_training_data.py --dataset hinge  # only HinGE (used by default for training)
+"""
+
+import argparse
+import ast
 import json
 from pathlib import Path
-import ast
+
+from datasets import load_dataset
+
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
 
-def save_json(split, out_path, english_col, hinglish_col):
-    out_path.parent.mkdir(parents = True, exist_ok = True)
+def parse_references(value):
+    """HinGE stores multiple references as a stringified Python list; others are plain strings."""
+    value = value.strip()
+    try:
+        parsed = ast.literal_eval(value)
+    except (ValueError, SyntaxError):
+        parsed = value
+
+    if isinstance(parsed, (list, tuple)):
+        return [str(item) for item in parsed]
+    return [str(parsed)]
+
+
+def save_json(rows, out_path, english_col, hinglish_col):
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     items = []
-    for row in split:
-        input = row[english_col].strip()
-        try:
-            outputs = ast.literal_eval(row[hinglish_col].strip())
-        except:
-            outputs = row[hinglish_col].strip()
-        
-        if isinstance(outputs, (list, tuple)):
-            outputs = [str(i) for i in outputs]
-        else:
-            outputs = [str(outputs)]
+    for row in rows:
+        english = row[english_col].strip()
+        for hinglish in parse_references(row[hinglish_col]):
+            items.append({"input": english, "output": hinglish.strip()})
 
-        for output in outputs:
-            item = {
-                "input": input,
-                "output": output.strip()
-            }
-            items.append(item)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(items, f, ensure_ascii=False, indent=2)
 
-    with open(out_path, "w", encoding = "utf-8") as f:
-        json.dump(items, f, ensure_ascii = False, indent = 2)
+    print(f"Saved {len(items)} pairs to {out_path}")
 
-    print(f"Saved {len(items)} Items At : {out_path}")
-    
-def download_hinge_dataset_iitgn():
+
+def download_hinge():
+    """LingoIITGN/HinGE: English sentences with human-written Hinglish translations."""
     dataset = load_dataset("LingoIITGN/HinGE")
-    print(dataset["train"][:5])
-    data_directory = Path("data")
-    data_directory.mkdir(exist_ok = True)
+    for split in ("train", "validation", "test"):
+        if split in dataset:
+            save_json(dataset[split], DATA_DIR / f"hinge_{split}.json",
+                      english_col="English", hinglish_col="Human-generated Hinglish")
 
-    # Save splits into data/
-    if "train" in dataset:
-        print("Saving train split...")
-        save_json(dataset["train"], data_directory / "hinge_train.json", "English", "Human-generated Hinglish")
 
-    if "validation" in dataset:
-        print("Saving validation split...")
-        save_json(dataset["validation"], data_directory / "hinge_validation.json", "English", "Human-generated Hinglish")
-
-    if "test" in dataset:
-        print("Saving test split...")
-        save_json(dataset["test"], data_directory / "hinge_test.json", "English", "Human-generated Hinglish")
-
-    print("All files stored in the data/ folder.")
-
-def download_hinge_dataset_findnitai():
+def download_findnitai():
+    """findnitai/english-to-hinglish: ~189k conversational pairs (noisier, larger)."""
     dataset = load_dataset("findnitai/english-to-hinglish")
+    for split in ("train", "validation", "test"):
+        if split in dataset:
+            save_json(dataset[split]["translation"], DATA_DIR / f"eng_hinglish_{split}.json",
+                      english_col="en", hinglish_col="hi_ng")
 
-    data_directory = Path("data")
-    data_directory.mkdir(exist_ok = True)
 
-    # Save splits into data/
-    if "train" in dataset:
-        print("Saving train split...")
-        save_json(dataset["train"]['translation'], data_directory / "eng_hinglish_train.json", "en", "hi_ng")
-
-    if "validation" in dataset:
-        print("Saving validation split...")
-        save_json(dataset["validation"], data_directory / "eng_hinglish_validation.json", "en", "hi_ng")
-
-    if "test" in dataset:
-        print("Saving test split...")
-        save_json(dataset["test"], data_directory / "eng_hinglish_test.json", "en", "hi_ng")
-
-    print("All files stored in the data/ folder.")
+DATASETS = {"hinge": download_hinge, "findnitai": download_findnitai}
 
 
 if __name__ == "__main__":
-    download_hinge_dataset_iitgn()
-    download_hinge_dataset_findnitai()
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--dataset", choices=[*DATASETS, "all"], default="all")
+    args = parser.parse_args()
+
+    for name, download in DATASETS.items():
+        if args.dataset in (name, "all"):
+            print(f"Downloading {name}...")
+            download()
