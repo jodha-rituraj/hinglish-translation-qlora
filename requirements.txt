@@ -1,8 +1,13 @@
-torch
-transformers
-accelerate
-datasets
-peft
+# Core training stack
+torch>=2.4
+transformers>=4.56
+accelerate>=1.0
+datasets>=3.0
+peft>=0.13
+
+# 4-/8-bit quantization (CUDA only; skipped on macOS, where you train with --quantization none)
+bitsandbytes>=0.45; sys_platform != "darwin"
+
+# Tokenizer dependencies for LLaMA / Gemma / Phi models
 sentencepiece
 protobuf
-trl
